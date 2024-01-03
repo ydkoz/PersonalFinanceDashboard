@@ -16,7 +16,7 @@ router.delete('/', async (req, res, next) => {
 		const data = req.body;
 		const deletedUser = await User.findOneAndDelete({ username: data.username});
 		if(!deletedUser) {
-			return res.status(404).json({"error":"User not found"});
+			return res.status(404).json({"message":"User not found"});
 		}
 		res.status(200).json({"message":"User deleted successfully"});
 	} catch (err) {
@@ -30,7 +30,7 @@ router.post('/register', async (req, res, next) => {
 		const data = req.body;
 		const existingUser = await User.findOne({username:data.username});
 		if(existingUser) {
-			return res.status(409).json({"error":"Username already exists"});
+			return res.status(409).json({"message":"Username already exists"});
 		}
 		const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
 		const newUser = new User({
@@ -75,7 +75,7 @@ router.post('/login', async (req, res, next) => {
 			
 			res.status(200).json({"message":"Login successful","user":userInfo});
 		} else {
-			res.status(401).json({"error": "Username and/or password incorrect"});
+			res.status(401).json({"message": "Username and/or password incorrect"});
 		}
 	} catch (err) {
 		//console.log(err);

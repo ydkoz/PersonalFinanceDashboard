@@ -28,7 +28,7 @@ describe('User Registration and Login', () => {
 			password: 'password123'
 		});
 		expect(response.statusCode).toBe(409);
-		expect(response.body.error).toBe('Username already exists');
+		expect(response.body.message).toBe('Username already exists');
 	});
 
 	test('Expect response code 200 for user login', async() => {

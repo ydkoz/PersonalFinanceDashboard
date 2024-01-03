@@ -22,8 +22,8 @@ describe('User Registration and Login', () => {
 	test('Expect response code 201 for successful transaction add', async () => {
 		const response = await request(app)
 		.post('/api/transactions')
+		.set('Authorization',jwtToken)
 		.send({
-			jwttoken: jwtToken,
 			amount: '10',
 			type: 'expense',
 			category: 'entertainment',
@@ -37,8 +37,8 @@ describe('User Registration and Login', () => {
 	test('Expect response code 201 for successful transaction add', async () => {
 		const response = await request(app)
 		.post('/api/transactions')
+		.set('Authorization',jwtToken)
 		.send({
-			jwttoken: jwtToken,
 			amount: '20',
 			type: 'expense',
 			category: 'food',
@@ -52,8 +52,8 @@ describe('User Registration and Login', () => {
 	test('Expect response code 201 for successful transaction add', async () => {
 		const response = await request(app)
 		.post('/api/transactions')
+		.set('Authorization',jwtToken)
 		.send({
-			jwttoken: jwtToken,
 			amount: '50',
 			type: 'expense',
 			category: 'utilities',
@@ -67,34 +67,39 @@ describe('User Registration and Login', () => {
 	test('Expect response code 200 for successful transaction get all', async () => {
 		const response = await request(app)
 		.get('/api/transactions')
+		.set('Authorization',jwtToken)
 		.send({
-			jwttoken: jwtToken,
-			transactionid: transactionId,
-			getall: 'true'
 		});
-		//transactionId = response.body.transaction._id;
-		console.log(response.body);
 		expect(response.statusCode).toBe(200);
 		expect(response.body.message).toBe('Transactions found');
 	});
 
 	test('Expect response code 200 for successful transaction get', async () => {
 		const response = await request(app)
-		.get('/api/transactions')
+		.get(`/api/transactions/${transactionId}`)
+		.set('Authorization',jwtToken)
 		.send({
-			jwttoken: jwtToken,
-			transactionid: transactionId
 		});
 		transactionId = response.body.transaction._id;
 		expect(response.statusCode).toBe(200);
 		expect(response.body.message).toBe('Transaction found');
 	});
 
+	test('Expect response code 404 for failed transaction get', async () => {
+		const response = await request(app)
+		.get(`/api/transactions/nonexistent`)
+		.set('Authorization',jwtToken)
+		.send({
+		});
+		expect(response.statusCode).toBe(404);
+		expect(response.body.message).toBe('Transaction not found');
+	});
+
 	test('Expect response code 200 for successful transaction update', async () => {
 		const response = await request(app)
 		.put('/api/transactions')
+		.set('Authorization',jwtToken)
 		.send({
-			jwttoken: jwtToken,
 			transactionid:transactionId,
 			category: 'entertainment',
 			description: 'movies update'
@@ -108,9 +113,9 @@ describe('User Registration and Login', () => {
 	test('Expect response code 200 for successful transaction delete', async () => {
 		const response = await request(app)
 		.delete('/api/transactions')
+		.set('Authorization',jwtToken)
 		.send(
 			{
-				jwttoken: jwtToken,
 				transactionid:transactionId
 		});
 		expect(response.statusCode).toBe(200);
@@ -120,20 +125,20 @@ describe('User Registration and Login', () => {
 	test('Expect response code 404 for unsuccessful transaction delete', async () => {
 		const response = await request(app)
 		.delete('/api/transactions')
+		.set('Authorization',jwtToken)
 		.send(
 			{
-				jwttoken: jwtToken,
 				transactionid:transactionId,
 		});
 		expect(response.statusCode).toBe(404);
 		expect(response.body.message).toBe('No transaction found to delete');
 	});
 
-	test('Expect response code 200 for successfull transaction delete all', async () => {
+	test('Expect response code 200 for successful transaction delete all', async () => {
 		const response = await request(app)
 		.delete('/api/transactions')
+		.set('Authorization',jwtToken)
 		.send({
-			jwttoken: jwtToken,
 			deleteall: 'true'
 		});
 		expect(response.statusCode).toBe(200);
@@ -143,8 +148,8 @@ describe('User Registration and Login', () => {
 	test('Expect response code 404 for failed transaction delete all', async () => {
 		const response = await request(app)
 		.delete('/api/transactions')
+		.set('Authorization',jwtToken)
 		.send({
-			jwttoken: jwtToken,
 			deleteall: 'true'
 		});
 		expect(response.statusCode).toBe(404);

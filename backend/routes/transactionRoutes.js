@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import User from '../models/User.js'
 import Transaction from '../models/Transaction.js';
 
@@ -15,7 +16,7 @@ async function verifyUser(jwtToken, next) {
 		const date = Date.now() / 1000;
 		if (jwtData.exp < date) {
 			const error = new Error("JWT Token Expired");
-			error.code("401");
+			error.status("401");
 			throw error;
 		}
 
@@ -36,31 +37,40 @@ async function verifyUser(jwtToken, next) {
 router.get('/', async (req, res, next) => {
 	try {
 		const data = req.body;
-		const userId = await verifyUser(data.jwttoken);
+		const userId = await verifyUser(req.headers.authorization);
+		let transactions = await Transaction.find(
+			{
+				userid: userId
+			}
+		);
+		if (transactions) {
+			res.status(200).json({"message":"Transactions found","transactions":transactions});
+		} else {
+			res.status(404).json({"message": `Transactions not found`});
+		}
+	} catch(err) {
+		next(err);
+	}
+});
+
+router.get('/:transactionid', async (req, res, next) => {
+	try {
+		const data = req.body;
+		const userId = await verifyUser(req.headers.authorization);
 		let transaction;
-		let transactions;
-		let plural=""
-		if (data.getall == 'true') {
-			transactions = await Transaction.find(
+		const validId = mongoose.Types.ObjectId.isValid(req.params.transactionid);
+		if (validId) {
+			transaction = await Transaction.findOne(
 				{
+					_id: req.params.transactionid,
 					userid: userId
 				}
 			);
-			plural ="s";
-			console.log(transactions);
-		} else {
-			transaction = await Transaction.findOne(
-				{
-					_id: data.transactionid,
-					userid: userId
-				});
-		}
-		if (transactions) {
-			res.status(200).json({"message":"Transactions found","transactions":transactions});
-		} else if(transaction) {
+		};
+		if(transaction) {
 			res.status(200).json({"message":"Transaction found", "transaction":transaction});
-		}else {
-			res.status(404).json({"error": `Transaction${plural} not found`});
+		} else {
+			res.status(404).json({"message": `Transaction not found`});
 		}
 	} catch(err) {
 		next(err);
@@ -70,7 +80,7 @@ router.get('/', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
 	try {
 		const data = req.body;
-		const userId = await verifyUser(data.jwttoken);
+		const userId = await verifyUser(req.headers.authorization);
 		const newTransaction = new Transaction({
 			userid: userId,
 			amount: data.amount,
@@ -95,7 +105,7 @@ router.post('/', async (req, res, next) => {
 router.delete('/', async (req, res, next) => {
 	try {
 		const data = req.body;
-		const userId = await verifyUser(data.jwttoken);
+		const userId = await verifyUser(req.headers.authorization);
 		let plural = ""
 		let result = "";
 		if(data.deleteall == 'true') {
@@ -125,7 +135,7 @@ router.delete('/', async (req, res, next) => {
 router.put('/', async (req, res, next) => {
 	try {
 		const data = req.body;
-		const userId = await verifyUser(data.jwttoken);
+		const userId = await verifyUser(req.headers.authorization);
 
 		let updatedData = {};
 		if ('amount' in data) {
