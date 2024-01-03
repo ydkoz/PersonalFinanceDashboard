@@ -37,11 +37,30 @@ router.get('/', async (req, res, next) => {
 	try {
 		const data = req.body;
 		const userId = await verifyUser(data.jwttoken);
-		const transaction = await Transaction.findOne({_id: data.transactionid, userid: userId})
-		if(transaction) {	
-			res.status(200).json({"message":"Transaction found", "transaction":transaction});
+		let transaction;
+		let transactions;
+		let plural=""
+		if (data.getall == 'true') {
+			transactions = await Transaction.find(
+				{
+					userid: userId
+				}
+			);
+			plural ="s";
+			console.log(transactions);
 		} else {
-			res.status(404).json({"error": "Transaction not found"});
+			transaction = await Transaction.findOne(
+				{
+					_id: data.transactionid,
+					userid: userId
+				});
+		}
+		if (transactions) {
+			res.status(200).json({"message":"Transactions found","transactions":transactions});
+		} else if(transaction) {
+			res.status(200).json({"message":"Transaction found", "transaction":transaction});
+		}else {
+			res.status(404).json({"error": `Transaction${plural} not found`});
 		}
 	} catch(err) {
 		next(err);
@@ -62,8 +81,6 @@ router.post('/', async (req, res, next) => {
 		});
 		const addedTransaction = await newTransaction.save();
 		if (addedTransaction) {
-			//console.log("addedTransaction");
-			//console.log(addedTransaction);
 			res.status(201).json(
 				{
 				"message":"Transaction added successfully",
