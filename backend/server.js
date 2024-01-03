@@ -1,7 +1,7 @@
 import './database.js';
 import bodyparser from 'body-parser';
 import dotenv from 'dotenv';
-//import errorMiddleware from './middlewares/errorHandlers.js';
+import errorMiddleware from './middlewares/errorHandlers.js';
 import express from 'express';
 import userRoutes from './routes/userRoutes.js';
 import transactionRoutes from './routes/transactionRoutes.js';
@@ -22,10 +22,12 @@ app.use('/api/users', userRoutes);
 app.use('/api/transactions', transactionRoutes);
 
 //error handler
-//app.use(errorMiddleware);
+app.use(errorMiddleware);
 
-app.listen(PORT, () => {
-	console.log(`Server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+	app.listen(PORT, () => {
+		console.log(`Server running on port ${PORT}`);
+	});
+}
 
 export default app;

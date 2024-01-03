@@ -39,8 +39,9 @@ describe('User Registration and Login', () => {
 			password: 'password123'
 		});
 		expect(response.statusCode).toBe(200);
-		expect(response.body.email).toBe("test@example.com");
-		console.log(response.body);
+		expect(response.body.message).toBe("Login successful");
+		expect(response.body.user.email).toBe("test@example.com");
+		//console.log(response.body);
 	});
 
 

@@ -11,7 +11,7 @@ const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS)
 const JWT_SECRET = process.env.JWT_SECRET
 const JWT_EXPIRATION_TIME = process.env.JWT_EXPIRATION_TIME
 
-router.delete('/', async (req, res) => {
+router.delete('/', async (req, res, next) => {
 	try {
 		const data = req.body;
 		const deletedUser = await User.findOneAndDelete({ username: data.username});
@@ -20,12 +20,12 @@ router.delete('/', async (req, res) => {
 		}
 		res.status(200).json({"message":"User deleted successfully"});
 	} catch (err) {
-		console.log(err);
-		res.status(500).json({"error": "Internal server error"});
+		//console.log(err);
+		next(err);
 	}
 })
 
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res, next) => {
     try {
 		const data = req.body;
 		const existingUser = await User.findOne({username:data.username});
@@ -40,15 +40,18 @@ router.post('/register', async (req, res) => {
 			username: data.username,
 			hashedpassword: hashedPassword
 		});
-		await newUser.save();
-		res.status(201).json({"message":"Registered successfully"});
+		const addedUser = await newUser.save();
+		if (addedUser) {
+			//console.log(addedUser);
+			res.status(201).json({"message":"Registered successfully"});
+		}
 	} catch(err) {
-		console.log(err);
-		res.status(500).json({"error": "Internal server error"});
+		//console.log(err);
+		next(err);
 	}
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
 	try {
 		const data = req.body;
 		const user = await User.findOne({username:data.username});
@@ -62,19 +65,21 @@ router.post('/login', async (req, res) => {
 			}
 
 			//testing details
+			//console.log("login here");
+			//console.log(jwtToken);
 			//const userjwt = (jwt.verify(jwtToken, JWT_SECRET))
 			//console.log(userjwt);
 			//const user2 = await User.findOne({_id:userjwt.userId});
 			//console.log(user2);
 			//testing details
 			
-			res.status(200).json(userInfo);
+			res.status(200).json({"message":"Login successful","user":userInfo});
 		} else {
 			res.status(401).json({"error": "Username and/or password incorrect"});
 		}
 	} catch (err) {
-		console.log(err);
-		res.status(500).json({"error": "Internal server error"});
+		//console.log(err);
+		next(err);
 	}
 });
 
