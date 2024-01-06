@@ -1,5 +1,6 @@
 import './database.js';
 import bodyparser from 'body-parser';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import errorMiddleware from './middlewares/errorHandlers.js';
 import express from 'express';
@@ -9,6 +10,7 @@ import transactionRoutes from './routes/transactionRoutes.js';
 dotenv.config()
 
 const app = express();
+app.use(cors());
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyparser.json());

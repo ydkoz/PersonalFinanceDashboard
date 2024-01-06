@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+// Transaction schema for mongoose database
+// will have a unique id as _id in the database
 const transactionSchema = new mongoose.Schema({
 	userid: {
 		type: mongoose.Schema.Types.ObjectId,

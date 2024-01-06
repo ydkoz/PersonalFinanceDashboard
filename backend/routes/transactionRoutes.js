@@ -1,48 +1,20 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
-import User from '../models/User.js'
 import Transaction from '../models/Transaction.js';
+import { verifyUser } from './userRoutes.js'
 
 dotenv.config();
 const router = express.Router();
 
-const JWT_SECRET = process.env.JWT_SECRET
-
-async function verifyUser(jwtToken, next) {
-	try {
-		const jwtData = jwt.verify(jwtToken, JWT_SECRET);
-		const date = Date.now() / 1000;
-		if (jwtData.exp < date) {
-			const error = new Error("JWT Token Expired");
-			error.status("401");
-			throw error;
-		}
-
-		const user = await User.findOne({_id: jwtData.userId});
-		if (user) {
-			return user._id;
-		} else {
-			const error = new Error("User not found");
-			error.status("401");
-			throw error;
-		}
-	} catch(err) {
-		next(err);
-	}
-
-};
-
+// handles api get request
+// returns all transactions for a specific user
 router.get('/', async (req, res, next) => {
 	try {
-		const data = req.body;
 		const userId = await verifyUser(req.headers.authorization);
-		let transactions = await Transaction.find(
-			{
+		let transactions = await Transaction.find({
 				userid: userId
-			}
-		);
+		});
 		if (transactions) {
 			res.status(200).json({"message":"Transactions found","transactions":transactions});
 		} else {
@@ -53,20 +25,20 @@ router.get('/', async (req, res, next) => {
 	}
 });
 
+// handles api get request for single transaction
+// returns transaction details for transactionid
+// requires jwt authorization header
 router.get('/:transactionid', async (req, res, next) => {
 	try {
-		const data = req.body;
 		const userId = await verifyUser(req.headers.authorization);
 		let transaction;
 		const validId = mongoose.Types.ObjectId.isValid(req.params.transactionid);
 		if (validId) {
-			transaction = await Transaction.findOne(
-				{
-					_id: req.params.transactionid,
-					userid: userId
-				}
-			);
-		};
+			transaction = await Transaction.findOne({
+				_id: req.params.transactionid,
+				userid: userId
+			});
+		}
 		if(transaction) {
 			res.status(200).json({"message":"Transaction found", "transaction":transaction});
 		} else {
@@ -77,6 +49,9 @@ router.get('/:transactionid', async (req, res, next) => {
 	}
 });
 
+// handles post request to add a new transaction
+// then returns transaction details if successfully added to database
+// requires jwt authorization header
 router.post('/', async (req, res, next) => {
 	try {
 		const data = req.body;
@@ -102,36 +77,52 @@ router.post('/', async (req, res, next) => {
 	};
 });
 
+// handles delete request to delete all transactions for a single user
+// requires jwt authorization header
 router.delete('/', async (req, res, next) => {
 	try {
 		const data = req.body;
 		const userId = await verifyUser(req.headers.authorization);
-		let plural = ""
-		let result = "";
-		if(data.deleteall == 'true') {
-			result = await Transaction.deleteMany(
-				{
-					userid: userId
-			});
-			plural = "s"
-		} else {
-			result = await Transaction.deleteOne(
-				{
-				_id: data.transactionid,
+		const result = await Transaction.deleteMany(
+			{
 				userid: userId
-			});
-
-		}
+		});
 		if(result.deletedCount > 0) {
-			res.status(200).json({"message":`Transaction${plural} deleted successfully`});
+			res.status(200).json({"message":`Transactions deleted successfully`});
 		} else {
-			res.status(404).json({"message":`No transaction${plural} found to delete`});
+			res.status(404).json({"message":`No transactions found to delete`});
 		}
 	} catch(err) {
 		next(err);
 	}
 });
 
+// handles delete request for a single transaction
+// requires jwt authorization header
+router.delete('/:transactionid', async (req, res, next) => {
+	try {
+		const userId = await verifyUser(req.headers.authorization);
+		const validId = mongoose.Types.ObjectId.isValid(req.params.transactionid);
+		let result;
+		if(validId) {
+			result = await Transaction.deleteOne(
+				{
+				_id: req.params.transactionid,
+				userid: userId
+			});
+		}
+		if(result.deletedCount > 0) {
+			res.status(200).json({"message":`Transaction deleted successfully`});
+		} else {
+			res.status(404).json({"message":`Transaction not found`});
+		}
+	} catch(err) {
+		next(err);
+	}
+});
+
+// handles updating a transaction
+// requires jwt authorization header
 router.put('/', async (req, res, next) => {
 	try {
 		const data = req.body;
@@ -170,6 +161,5 @@ router.put('/', async (req, res, next) => {
 		next(err);
 	}
 });
-
 
 export default router;

@@ -112,35 +112,27 @@ describe('User Registration and Login', () => {
 
 	test('Expect response code 200 for successful transaction delete', async () => {
 		const response = await request(app)
-		.delete('/api/transactions')
+		.delete(`/api/transactions/${transactionId}`)
 		.set('Authorization',jwtToken)
-		.send(
-			{
-				transactionid:transactionId
-		});
+		.send();
 		expect(response.statusCode).toBe(200);
 		expect(response.body.message).toBe('Transaction deleted successfully');
 	});
 	
 	test('Expect response code 404 for unsuccessful transaction delete', async () => {
 		const response = await request(app)
-		.delete('/api/transactions')
+		.delete(`/api/transactions/${transactionId}`)
 		.set('Authorization',jwtToken)
-		.send(
-			{
-				transactionid:transactionId,
-		});
+		.send({});
 		expect(response.statusCode).toBe(404);
-		expect(response.body.message).toBe('No transaction found to delete');
+		expect(response.body.message).toBe('Transaction not found');
 	});
 
 	test('Expect response code 200 for successful transaction delete all', async () => {
 		const response = await request(app)
 		.delete('/api/transactions')
 		.set('Authorization',jwtToken)
-		.send({
-			deleteall: 'true'
-		});
+		.send();
 		expect(response.statusCode).toBe(200);
 		expect(response.body.message).toBe('Transactions deleted successfully');
 	});
@@ -149,9 +141,7 @@ describe('User Registration and Login', () => {
 		const response = await request(app)
 		.delete('/api/transactions')
 		.set('Authorization',jwtToken)
-		.send({
-			deleteall: 'true'
-		});
+		.send();
 		expect(response.statusCode).toBe(404);
 		expect(response.body.message).toBe('No transactions found to delete');
 	});
