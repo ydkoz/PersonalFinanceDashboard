@@ -15,9 +15,9 @@ const Login = () => {
 
 	const handleInputChange =
 	(setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (error) setError('');
-        setter(e.target.value);
-    };
+		if (error) setError('');
+		else setter(e.target.value);
+	};
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();

@@ -18,7 +18,7 @@ const Register = () => {
 	(setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
         if (error) setError('');
         setter(e.target.value);
-    };
+};
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
