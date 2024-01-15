@@ -4,6 +4,7 @@ import { useAppSelector } from '../app/hooks';
 import { loginUser } from '../services/userService';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../app/store';
+import { unwrapResult } from '@reduxjs/toolkit';
 
 const Login = () => {
 	const [username, setUsername] = useState('');
@@ -22,12 +23,9 @@ const Login = () => {
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		try {
-			await dispatch(loginUser({ username, password }));
-			if(isLoggedIn) {
-				navigate('/dashboard');
-			} else {
-				setError("Username and/or password incorrect");
-			}
+			const result = await dispatch(loginUser({ username, password }));
+			unwrapResult(result);
+			navigate('/dashboard');
 		} catch(error: any) {
 			setError(error.response.data.message);
 		}

@@ -48,9 +48,10 @@ const loginUser = (userData: User) => async (dispatch: Dispatch) => {
 		}
 
 		setAuthToken(responseUserToken);
-		dispatch(loginSuccess({userToken: responseUserToken, userData: responseUserData}));
+		return dispatch(loginSuccess({userToken: responseUserToken, userData: responseUserData}));
 	} catch(error: any) {
 		dispatch(loginFailure(error.response.data.message));
+		return Promise.reject(error);
 	}
 };
 
