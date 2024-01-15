@@ -27,7 +27,7 @@ const Register = () => {
 		  await dispatch(registerUser(user));
 		  navigate('/login');
 		} catch(error: any) {
-			setError('Username and/or password incorrect');
+			setError('Username already exists');
 		}
 	};
 

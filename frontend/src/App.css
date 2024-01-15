@@ -10,7 +10,7 @@
 	align-items: center;
 	justify-content: flex-start;
 	color: white;
-	padding-top: 10vh;
+	padding-top: 2vh;
 }
 
 .login-container, .register-container {
@@ -37,17 +37,17 @@
 	background: #fdffff;
 }
 
-.login-container button, .register-container button {
+button {
 	background-color: #2788c4;
 	color: white;
-	padding: 10px 20px;
-	margin: 10px 0;
+	padding: 5px 10px;
+	margin: 5px 0;
 	border: none;
 	border-radius: 5px;
 	cursor: pointer;
 }
 
-.login-container button:hover, .register-container button:hover {
+button:hover {
 	background-color: #1d73a8;
 }
 
@@ -87,3 +87,27 @@
 	color: white;
 	font-weight: bold;
 }
+
+.dashboard-content {
+	padding: 20px;
+	}
+	
+	.transaction-table {
+	margin-top: 20px;
+	}
+	
+	table {
+	width: 100%;
+	border-collapse: collapse;
+	}
+	
+	th, td {
+	border: 1px solid #ddd;
+	padding: 8px;
+	text-align: left;
+	}
+	
+	th {
+	background-color: #f2f2f2;
+	}
+	
